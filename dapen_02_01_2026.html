@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analisis Struktur Halaman Aplikasi Mobile - Breakdown Profesional">
+    <title>Analisis Struktur Aplikasi Mobile | DAPEN</title>
+
+    <!-- Tailwind CSS 3 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        neon: {
+                            cyan: '#00ffff',
+                            pink: '#ff00ff',
+                            purple: '#bf00ff',
+                            blue: '#0080ff',
+                            green: '#00ff80',
+                        }
+                    },
+                    animation: {
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'slide-up': 'slide-up 0.5s ease-out',
+                        'fade-in': 'fade-in 0.6s ease-out',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff' },
+                            '100%': { boxShadow: '0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff' }
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+            background-attachment: fixed;
+        }
+
+        .neon-border {
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 10px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 1px solid transparent;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(135deg, #00ffff, #ff00ff, #00ffff);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            border-radius: inherit;
+            opacity: 0.5;
+        }
+
+        .json-viewer {
+            background: #0f0f1e;
+            border-left: 3px solid #00ffff;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .json-key {
+            color: #ff00ff;
+        }
+
+        .json-string {
+            color: #00ff80;
+        }
+
+        .json-number {
+            color: #00ffff;
+        }
+
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 128, 255, 0.1), rgba(191, 0, 255, 0.1));
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="glass-card sticky top-0 z-50 animate-slide-up">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-neon-cyan neon-text">DAPEN App Structure</h1>
+                        <p class="text-sm text-gray-400">Analisis Profesional Struktur Halaman</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="pulse-dot w-2 h-2 bg-neon-green rounded-full"></span>
+                    <span class="text-sm text-gray-400">v2.1 | 02 Jan 2026</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+
+        <!-- Hero Section -->
+        <!-- <section class="mb-12 animate-fade-in">
+            <div class="glass-card rounded-2xl p-8 gradient-border">
+                <h2
+                    class="text-4xl font-bold mb-4 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink bg-clip-text text-transparent">
+                    Struktur Halaman Aplikasi Mobile
+                </h2>
+                <p class="text-lg text-gray-300 mb-6">
+                    Dalam aplikasi mobile yang profesional, setiap menu memiliki halaman turunan (list & detail).
+                    Berikut adalah breakdown struktur halaman yang komprehensif berdasarkan best practice pengembangan
+                    aplikasi.
+                </p>
+                <div class="flex gap-4">
+                    <button onclick="showJSON()"
+                        class="px-6 py-3 bg-gradient-to-r from-neon-cyan to-neon-blue rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-cyan/50 transition-all">
+                        📊 Lihat Data JSON
+                    </button>
+                    <button onclick="showBreakdown()"
+                        class="px-6 py-3 bg-gradient-to-r from-neon-purple to-neon-pink rounded-lg font-semibold hover:shadow-lg hover:shadow-neon-purple/50 transition-all">
+                        📋 Breakdown Detail
+                    </button>
+                </div>
+            </div>
+        </section> -->
+
+        <!-- Statistics Summary -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div data-stat-module="home" class="stat-card rounded-xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-3xl">🏠</span>
+                    <span class="stat-page-count text-neon-cyan text-2xl font-bold">1</span>
+                </div>
+                <h3 class="stat-module-name text-gray-400 text-sm">Beranda</h3>
+                <p class="stat-description text-xs text-gray-500 mt-1">Halaman Utama</p>
+            </div>
+
+            <div data-stat-module="reports" class="stat-card rounded-xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-3xl">📊</span>
+                    <span class="stat-page-count text-neon-purple text-2xl font-bold">2-3</span>
+                </div>
+                <h3 class="stat-module-name text-gray-400 text-sm">Laporan</h3>
+                <p class="stat-description text-xs text-gray-500 mt-1">List + Detail + PDF</p>
+            </div>
+
+            <div data-stat-module="news" class="stat-card rounded-xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-3xl">📰</span>
+                    <span class="stat-page-count text-neon-blue text-2xl font-bold">2-3</span>
+                </div>
+                <h3 class="stat-module-name text-gray-400 text-sm">Berita</h3>
+                <p class="stat-description text-xs text-gray-500 mt-1">List + Detail + Viewer</p>
+            </div>
+
+            <div data-stat-module="others" class="stat-card rounded-xl p-6 hover-lift">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-3xl">⚙️</span>
+                    <span class="stat-page-count text-neon-green text-2xl font-bold">3-4</span>
+                </div>
+                <h3 class="stat-module-name text-gray-400 text-sm">Lainnya</h3>
+                <p class="stat-description text-xs text-gray-500 mt-1">Form + Kuis + Survey</p>
+            </div>
+        </section>
+
+        <!-- Module Breakdown -->
+        <section id="breakdown-section" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6 text-neon-cyan">📱 Breakdown Halaman Per Modul</h2>
+
+            <!-- Laporan Module -->
+            <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold text-neon-purple">A. Menu Laporan</h3>
+                            <span data-module="reports"
+                                class="module-price-display text-neon-purple font-mono text-lg font-bold">Rp 0</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-500">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-purple-300">1. Halaman Daftar Laporan</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• List laporan</li>
+                                    <li>• Filter kategori (Kinerja / Dewas)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-400">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-purple-300">2. Halaman Detail Laporan</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Judul</li>
+                                    <li>• Ringkasan (jika ada)</li>
+                                    <li>• Tombol download PDF</li>
+                                </ul>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-300">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-purple-300">3. Halaman PDF / Redirect Browser</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Redirect ke browser untuk unduh</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-purple-500/20 border border-purple-500 rounded-full text-sm text-purple-300 font-semibold">
+                                Total: 2–3 halaman
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Berita Module -->
+            <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">📰</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold text-neon-blue">B. Menu Berita</h3>
+                            <span data-module="news"
+                                class="module-price-display text-neon-blue font-mono text-lg font-bold">Rp 0</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-500">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-blue-300">1. Halaman Daftar Berita</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Thumbnail</li>
+                                    <li>• Judul</li>
+                                    <li>• Kategori</li>
+                                </ul>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-400">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-blue-300">2. Halaman Detail Berita</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Judul</li>
+                                    <li>• Gambar</li>
+                                    <li>• Konten</li>
+                                    <li>• PDF Viewer (conditional)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-300">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-blue-300">3. Halaman PDF (opsional)</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Viewer / redirect</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-blue-500/20 border border-blue-500 rounded-full text-sm text-blue-300 font-semibold">
+                                Total: 2–3 halaman
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lainnya Module -->
+            <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">⚙️</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold text-neon-green">C. Menu Lainnya</h3>
+                            <span data-module="others"
+                                class="module-price-display text-neon-green font-mono text-lg font-bold">Rp 0</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-500">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-green-300">1. Download Form</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 140.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Halaman List Form</li>
+                                    <li>• Halaman Detail Form (judul + download)</li>
+                                </ul>
+                                <span
+                                    class="inline-block mt-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">2
+                                    halaman</span>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-400">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-green-300">2. Kuis</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Redirect URL</li>
+                                </ul>
+                                <span
+                                    class="inline-block mt-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">1
+                                    halaman ringan</span>
+                            </div>
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-300">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-green-300">3. Survey</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Redirect URL</li>
+                                </ul>
+                                <span
+                                    class="inline-block mt-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">1
+                                    halaman ringan</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-green-500/20 border border-green-500 rounded-full text-sm text-green-300 font-semibold">
+                                Total: 3–4 halaman
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beranda Module -->
+            <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">🏠</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold text-neon-cyan">D. Beranda + Slider Banner</h3>
+                            <span data-module="home"
+                                class="module-price-display text-neon-cyan font-mono text-lg font-bold">Rp 0</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-cyan-500">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="font-semibold text-cyan-300">1. Halaman Beranda</h4>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                </div>
+                                <ul class="text-sm text-gray-400 ml-4 space-y-1">
+                                    <li>• Slider banner</li>
+                                    <li>• Shortcut menu</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-cyan-500/20 border border-cyan-500 rounded-full text-sm text-cyan-300 font-semibold">
+                                Total: 1 halaman
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Total Summary -->
+        <section class="glass-card rounded-xl p-8 mb-12 gradient-border">
+            <h2 class="text-3xl font-bold mb-6 text-neon-pink">💰 Total Halaman & Estimasi Biaya</h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-neon-cyan/30">
+                            <th class="pb-3 text-neon-cyan font-semibold">Modul</th>
+                            <th class="pb-3 text-neon-cyan font-semibold text-right">Jumlah Halaman</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                        <tr class="border-b border-gray-700/30">
+                            <td class="py-3">Beranda</td>
+                            <td class="py-3 text-right font-mono">1</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/30">
+                            <td class="py-3">Laporan</td>
+                            <td class="py-3 text-right font-mono">2–3</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/30">
+                            <td class="py-3">Berita</td>
+                            <td class="py-3 text-right font-mono">2–3</td>
+                        </tr>
+                        <tr class="border-b border-gray-700/30">
+                            <td class="py-3">Lainnya</td>
+                            <td class="py-3 text-right font-mono">3–4</td>
+                        </tr>
+                        <tr class="border-t-2 border-neon-pink/50">
+                            <td class="py-3 font-bold text-neon-pink">Total</td>
+                            <td class="py-3 text-right font-bold text-neon-pink font-mono text-xl">8–11 halaman</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                class="mt-8 p-6 bg-gradient-to-r from-neon-pink/10 to-neon-purple/10 rounded-lg border border-neon-pink/30">
+                <h3 class="text-xl font-bold text-neon-pink mb-4">📊 Kalkulasi Biaya (Konservatif 10 Halaman) dan Update
+                    Fitur</h3>
+                <div class="space-y-2 text-gray-300">
+                    <p class="flex justify-between">
+                        <span>Jumlah Halaman:</span>
+                        <span id="total-pages" class="font-mono font-bold text-neon-cyan">10 halaman</span>
+                    </p>
+                    <div class="border-t border-neon-pink/30 my-3"></div>
+                    <p class="flex justify-between text-xl">
+                        <span class="font-bold">Total Estimasi:</span>
+                        <span id="total-price" class="font-mono font-bold text-neon-pink text-2xl">Rp 700.000</span>
+                    </p>
+                </div>
+
+                <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <h4 class="font-semibold text-yellow-300 mb-2">⚠️ Belum Termasuk:</h4>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• Upload Play Store</li>
+                        <li>• Testing & QA</li>
+                        <li>• Revisi UI/UX</li>
+                        <li>• Integrasi API / CMS</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- JSON Viewer -->
+        <section id="json-section" class="mb-12" style="display: none;">
+            <h2 class="text-3xl font-bold mb-6 text-neon-cyan">📄 Data Struktur dalam Format JSON</h2>
+            <div class="glass-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300">app_structure.json</h3>
+                    <button onclick="copyJSON()"
+                        class="px-4 py-2 bg-neon-cyan/20 hover:bg-neon-cyan/30 border border-neon-cyan rounded-lg text-sm transition-all">
+                        📋 Copy JSON
+                    </button>
+                </div>
+                <pre id="json-display" class="json-viewer rounded-lg p-6 overflow-x-auto text-sm leading-relaxed"></pre>
+            </div>
+        </section>
+
+
+
+    </main>
+
+    <!-- Footer -->
+    <!-- <footer class="glass-card mt-16 py-8">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <p class="mb-2">© 2026 DAPEN - Dana Pensiun Professional App Analysis</p>
+            <p class="text-sm">Built with <span class="text-neon-pink">❤</span> using Tailwind CSS 3</p>
+        </div>
+    </footer> -->
+
+    <script>
+        // Data JSON dengan sistem harga otomatis (module + page level)
+        const appStructure = {
+            "project_info": {
+                "project_name": "DAPEN Mobile App",
+                "analysis_date": "2026-01-02",
+                "version": "2.1",
+                "total_pages_range": "Sekitar 8-11"
+            },
+            "modules": [
+                {
+                    "module_name": "Beranda",
+                    "module_id": "home",
+                    "icon": "🏠",
+                    "module_price": 0,
+                    "pages": [
+                        {
+                            "page_name": "Halaman Beranda",
+                            "page_type": "main",
+                            "price": 70000,
+                            "features": [
+                                "Slider banner",
+                                "Shortcut menu"
+                            ]
+                        }
+                    ],
+                    "total_pages": 1
+                },
+                {
+                    "module_name": "Laporan",
+                    "module_id": "reports",
+                    "icon": "📊",
+                    "module_price": 0,
+                    "pages": [
+                        {
+                            "page_name": "Daftar Laporan",
+                            "page_type": "list",
+                            "price": 70000,
+                            "features": [
+                                "List laporan",
+                                "Filter kategori (Kinerja / Dewas)"
+                            ]
+                        },
+                        {
+                            "page_name": "Detail Laporan",
+                            "page_type": "detail",
+                            "price": 70000,
+                            "features": [
+                                "Judul",
+                                "Ringkasan (jika ada)",
+                                "Tombol download PDF"
+                            ]
+                        },
+                        {
+                            "page_name": "Export PDF/Redirect",
+                            "page_type": "viewer",
+                            "price": 0,
+                            "features": [
+                                "Redirect ke browser untuk unduh"
+                            ]
+                        }
+                    ],
+                    "total_pages": "2"
+                },
+                {
+                    "module_name": "Berita",
+                    "module_id": "news",
+                    "icon": "📰",
+                    "module_price": 0,
+                    "pages": [
+                        {
+                            "page_name": "Daftar Berita",
+                            "page_type": "list",
+                            "price": 70000,
+                            "features": [
+                                "Thumbnail",
+                                "Judul",
+                                "Kategori"
+                            ]
+                        },
+                        {
+                            "page_name": "Detail Berita",
+                            "page_type": "detail",
+                            "price": 70000,
+                            "features": [
+                                "Judul",
+                                "Gambar",
+                                "Konten",
+                                "PDF Viewer (conditional)"
+                            ]
+                        },
+                        {
+                            "page_name": "PDF Viewer (opsional)",
+                            "page_type": "viewer",
+                            "price": 0,
+                            "features": [
+                                "Viewer / redirect"
+                            ]
+                        }
+                    ],
+                    "total_pages": "2"
+                },
+                {
+                    "module_name": "Lainnya",
+                    "module_id": "others",
+                    "icon": "⚙️",
+                    "module_price": 70000,
+                    "sub_modules": [
+                        {
+                            "sub_module_name": "Download Form",
+                            "pages": [
+                                {
+                                    "page_name": "List Form",
+                                    "page_type": "list",
+                                    "price": 0,
+                                    "features": ["Daftar form"]
+                                },
+                                {
+                                    "page_name": "Detail Form",
+                                    "page_type": "detail",
+                                    "price": 0,
+                                    "features": ["Judul", "Download button"]
+                                }
+                            ],
+                            "sub_total": 1
+                        },
+                        {
+                            "sub_module_name": "Kuis",
+                            "pages": [
+                                {
+                                    "page_name": "Redirect Kuis",
+                                    "page_type": "redirect",
+                                    "price": 0,
+                                    "features": ["Redirect URL"]
+                                }
+                            ],
+                            "sub_total": 0
+                        },
+                        {
+                            "sub_module_name": "Survey",
+                            "pages": [
+                                {
+                                    "page_name": "Redirect Survey",
+                                    "page_type": "redirect",
+                                    "price": 0,
+                                    "features": ["Redirect URL"]
+                                }
+                            ],
+                            "sub_total": 0
+                        }
+                    ],
+                    "total_pages": "1"
+                }
+            ],
+            "summary": {
+                "total_modules": 4,
+                "page_breakdown": {
+                    "Beranda": 1,
+                    "Laporan": "2-3",
+                    "Berita": "2-3",
+                    "Lainnya": "3-4"
+                },
+                "realistic_total": "8-11 halaman",
+                "conservative_estimate": 10
+            },
+            "pricing": {
+                "currency": "IDR",
+                "additional_costs": [
+                    "Upload Play Store",
+                    "Testing & QA",
+                    "Revisi UI/UX",
+                    "Integrasi API / CMS"
+                ]
+            },
+            "notes": {
+                "total_realistic_pages": "8-11 halaman",
+                "baseline_calculation": "Otomatis berdasarkan sum harga modul + halaman",
+                "page_definition": "Setiap halaman dihitung berdasarkan fungsi spesifik (list/detail/viewer)"
+            }
+        };
+
+        // Fungsi untuk format rupiah
+        function formatRupiah(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Fungsi untuk menghitung total harga otomatis (termasuk module price)
+        function calculateTotalPrice() {
+            let total = 0;
+            let pageCount = 0;
+
+            appStructure.modules.forEach(module => {
+                // Tambahkan harga module (jika ada)
+                total += module.module_price || 0;
+
+                if (module.pages) {
+                    // Untuk module dengan pages langsung
+                    module.pages.forEach(page => {
+                        total += page.price || 0;
+                        pageCount++;
+                    });
+                } else if (module.sub_modules) {
+                    // Untuk module dengan sub_modules
+                    module.sub_modules.forEach(subModule => {
+                        subModule.pages.forEach(page => {
+                            total += page.price || 0;
+                            pageCount++;
+                        });
+                    });
+                }
+            });
+
+            return { total, pageCount };
+        }
+
+        // Fungsi untuk update pricing display
+        function updatePricingDisplay() {
+            const { total, pageCount } = calculateTotalPrice();
+
+            // Update jumlah halaman
+            const pageCountElement = document.getElementById('total-pages');
+            if (pageCountElement) {
+                pageCountElement.textContent = `${pageCount} halaman`;
+            }
+
+            // Update total estimasi
+            const totalPriceElement = document.getElementById('total-price');
+            if (totalPriceElement) {
+                totalPriceElement.textContent = formatRupiah(total);
+            }
+        }
+
+        // Display JSON with syntax highlighting
+        function displayJSON() {
+            const jsonDisplay = document.getElementById('json-display');
+            const jsonString = JSON.stringify(appStructure, null, 2);
+            jsonDisplay.textContent = jsonString;
+        }
+
+        // Show JSON section
+        function showJSON() {
+            document.getElementById('json-section').style.display = 'block';
+            document.getElementById('json-section').scrollIntoView({ behavior: 'smooth' });
+            displayJSON();
+        }
+
+        // Show Breakdown section
+        function showBreakdown() {
+            document.getElementById('breakdown-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        // Fungsi untuk render harga modul dari JSON ke UI
+        function renderModulePricesFromJSON() {
+            appStructure.modules.forEach(module => {
+                const moduleElements = document.querySelectorAll(`[data-module="${module.module_id}"].module-price-display`);
+                moduleElements.forEach(el => {
+                    el.textContent = formatRupiah(module.module_price || 0);
+                });
+            });
+        }
+
+        // Fungsi untuk render harga dari JSON ke UI
+        function renderPricesFromJSON() {
+            let moduleIndex = 0;
+            appStructure.modules.forEach(module => {
+                if (module.pages) {
+                    // Render untuk module dengan pages langsung
+                    module.pages.forEach((page, pageIndex) => {
+                        const priceElements = document.querySelectorAll(`[data-module="${module.module_id}"] [data-page-index="${pageIndex}"] .price-display`);
+                        priceElements.forEach(el => {
+                            el.textContent = formatRupiah(page.price);
+                        });
+                    });
+                } else if (module.sub_modules) {
+                    // Render untuk module dengan sub_modules
+                    module.sub_modules.forEach((subModule, subIndex) => {
+                        subModule.pages.forEach((page, pageIndex) => {
+                            const priceElements = document.querySelectorAll(`[data-module="${module.module_id}"] [data-sub-index="${subIndex}"] [data-page-index="${pageIndex}"] .price-display`);
+                            priceElements.forEach(el => {
+                                el.textContent = formatRupiah(page.price);
+                            });
+                        });
+                    });
+                }
+                moduleIndex++;
+            });
+        }
+
+        // Fungsi untuk update statistics cards otomatis
+        function updateStatisticsCards() {
+            appStructure.modules.forEach(module => {
+                const statCard = document.querySelector(`[data-stat-module="${module.module_id}"]`);
+                if (statCard) {
+                    // Update jumlah halaman
+                    const pageCountEl = statCard.querySelector('.stat-page-count');
+                    if (pageCountEl) {
+                        pageCountEl.textContent = module.total_pages;
+                    }
+
+                    // Update nama modul
+                    const moduleNameEl = statCard.querySelector('.stat-module-name');
+                    if (moduleNameEl) {
+                        moduleNameEl.textContent = module.module_name;
+                    }
+
+                    // Update deskripsi (optional)
+                    const descEl = statCard.querySelector('.stat-description');
+                    if (descEl && module.pages) {
+                        const types = [...new Set(module.pages.map(p => p.page_type))];
+                        descEl.textContent = types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(' + ');
+                    }
+                }
+            });
+        }
+
+        // Copy JSON to clipboard
+        function copyJSON() {
+            const jsonString = JSON.stringify(appStructure, null, 2);
+            navigator.clipboard.writeText(jsonString).then(() => {
+                alert('✅ JSON berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            displayJSON();
+            updatePricingDisplay();
+            renderModulePricesFromJSON();
+            renderPricesFromJSON();
+            updateStatisticsCards();
+        });
+    </script>
+
+</body>
+
+</html>
