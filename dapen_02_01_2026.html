@@ -161,25 +161,25 @@
 <body class="text-gray-100 min-h-screen">
 
     <!-- Header -->
-    <header class="glass-card sticky top-0 z-50 animate-slide-up">
+    <header class="glass-card sm:sticky top-0 z-50 animate-slide-up">
         <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 sm:space-x-4">
                     <div
-                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                        class="w-12 h-12 rounded-lg bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center flex-shrink-0">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-neon-cyan neon-text">DAPEN App Structure</h1>
-                        <p class="text-sm text-gray-400">Analisis Profesional Struktur Halaman</p>
+                        <h1 class="text-xl sm:text-2xl font-bold text-neon-cyan neon-text">DAPEN App Structure</h1>
+                        <p class="text-xs sm:text-sm text-gray-400">Analisis Profesional Struktur Halaman</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="pulse-dot w-2 h-2 bg-neon-green rounded-full"></span>
-                    <span class="text-sm text-gray-400">v2.1 | 02 Jan 2026</span>
+                    <span class="text-xs sm:text-sm text-gray-400">v2.2 | 02 Jan 2026</span>
                 </div>
             </div>
         </div>
@@ -258,22 +258,23 @@
 
             <!-- Laporan Module -->
             <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
-                <div class="flex items-start gap-4">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
                     <div
                         class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                         <span class="text-2xl">📊</span>
                     </div>
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                             <h3 class="text-xl font-bold text-neon-purple">A. Menu Laporan</h3>
                             <span data-module="reports"
                                 class="module-price-display text-neon-purple font-mono text-lg font-bold">Rp 0</span>
                         </div>
                         <div class="space-y-3">
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-500">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-purple-300">1. Halaman Daftar Laporan</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• List laporan</li>
@@ -281,9 +282,10 @@
                                 </ul>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-400">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-purple-300">2. Halaman Detail Laporan</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Judul</li>
@@ -292,9 +294,10 @@
                                 </ul>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-purple-300">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-purple-300">3. Halaman PDF / Redirect Browser</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Redirect ke browser untuk unduh</li>
@@ -302,7 +305,7 @@
                             </div>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <span
+                            <span data-module-total="reports"
                                 class="px-3 py-1 bg-purple-500/20 border border-purple-500 rounded-full text-sm text-purple-300 font-semibold">
                                 Total: 2–3 halaman
                             </span>
@@ -313,22 +316,23 @@
 
             <!-- Berita Module -->
             <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
-                <div class="flex items-start gap-4">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
                     <div
                         class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
                         <span class="text-2xl">📰</span>
                     </div>
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                             <h3 class="text-xl font-bold text-neon-blue">B. Menu Berita</h3>
                             <span data-module="news"
                                 class="module-price-display text-neon-blue font-mono text-lg font-bold">Rp 0</span>
                         </div>
                         <div class="space-y-3">
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-500">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-blue-300">1. Halaman Daftar Berita</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Thumbnail</li>
@@ -337,9 +341,10 @@
                                 </ul>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-400">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-blue-300">2. Halaman Detail Berita</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Judul</li>
@@ -349,9 +354,10 @@
                                 </ul>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-blue-300">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-blue-300">3. Halaman PDF (opsional)</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Viewer / redirect</li>
@@ -359,7 +365,7 @@
                             </div>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <span
+                            <span data-module-total="news"
                                 class="px-3 py-1 bg-blue-500/20 border border-blue-500 rounded-full text-sm text-blue-300 font-semibold">
                                 Total: 2–3 halaman
                             </span>
@@ -370,22 +376,23 @@
 
             <!-- Lainnya Module -->
             <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
-                <div class="flex items-start gap-4">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
                     <div
                         class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
                         <span class="text-2xl">⚙️</span>
                     </div>
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                             <h3 class="text-xl font-bold text-neon-green">C. Menu Lainnya</h3>
                             <span data-module="others"
                                 class="module-price-display text-neon-green font-mono text-lg font-bold">Rp 0</span>
                         </div>
                         <div class="space-y-3">
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-500">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">1. Download Form</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 140.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        140.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Halaman List Form</li>
@@ -396,9 +403,10 @@
                                     halaman</span>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-400">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">2. Kuis</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Redirect URL</li>
@@ -408,9 +416,10 @@
                                     halaman ringan</span>
                             </div>
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-300">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">3. Survey</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Redirect URL</li>
@@ -421,7 +430,7 @@
                             </div>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <span
+                            <span data-module-total="others"
                                 class="px-3 py-1 bg-green-500/20 border border-green-500 rounded-full text-sm text-green-300 font-semibold">
                                 Total: 3–4 halaman
                             </span>
@@ -432,22 +441,23 @@
 
             <!-- Beranda Module -->
             <div class="glass-card rounded-xl p-6 mb-6 hover-lift">
-                <div class="flex items-start gap-4">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
                     <div
                         class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
                         <span class="text-2xl">🏠</span>
                     </div>
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                             <h3 class="text-xl font-bold text-neon-cyan">D. Beranda + Slider Banner</h3>
                             <span data-module="home"
                                 class="module-price-display text-neon-cyan font-mono text-lg font-bold">Rp 0</span>
                         </div>
                         <div class="space-y-3">
                             <div class="bg-black/30 rounded-lg p-4 border-l-4 border-cyan-500">
-                                <div class="flex justify-between items-center mb-1">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-cyan-300">1. Halaman Beranda</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold">Rp 70.000</span>
+                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                        70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
                                     <li>• Slider banner</li>
@@ -456,7 +466,7 @@
                             </div>
                         </div>
                         <div class="mt-4 flex items-center gap-2">
-                            <span
+                            <span data-module-total="home"
                                 class="px-3 py-1 bg-cyan-500/20 border border-cyan-500 rounded-full text-sm text-cyan-300 font-semibold">
                                 Total: 1 halaman
                             </span>
@@ -466,9 +476,56 @@
             </div>
         </section>
 
+        <!-- Additional Services Section -->
+        <section class="glass-card rounded-xl p-8 mb-12 gradient-border">
+            <h2 class="text-3xl font-bold mb-6 text-neon-green">� Layanan Tambahan</h2>
+
+            <div class="space-y-4">
+                <div
+                    class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-6 border border-green-500/30 hover-lift">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">📱</span>
+                                <h3 class="text-xl font-bold text-green-400">Update Google Play Store</h3>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-3">
+                                Layanan update aplikasi ke Google Play Store, termasuk upload APK/AAB, update metadata,
+                                dan publish.
+                            </p>
+                            <ul class="text-sm text-gray-400 space-y-1 ml-6">
+                                <li>• Upload file APK/AAB terbaru</li>
+                                <li>• Update deskripsi & screenshot</li>
+                                <li>• Review & publish ke production</li>
+                                <li>• Monitoring status deployment</li>
+                            </ul>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-sm text-gray-400 mb-1">Biaya Layanan</div>
+                            <div id="playstore-service-price" class="text-3xl font-bold text-green-400 font-mono">Rp
+                                250.000</div>
+                            <div class="text-xs text-gray-500 mt-1">per update</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <h4 class="font-semibold text-yellow-300 mb-2 flex items-center gap-2">
+                        <span>ℹ️</span>
+                        Catatan
+                    </h4>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• Layanan ini <strong>tidak termasuk</strong> dalam biaya pengembangan aplikasi</li>
+                        <li>• Dikenakan untuk setiap kali update/rilis versi baru</li>
+                        <li>• Akun Google Play Console harus sudah tersedia</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- Total Summary -->
         <section class="glass-card rounded-xl p-8 mb-12 gradient-border">
-            <h2 class="text-3xl font-bold mb-6 text-neon-pink">💰 Total Halaman & Estimasi Biaya</h2>
+            <h2 class="text-3xl font-bold mb-6 text-neon-pink">� Total Halaman & Estimasi Biaya</h2>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
@@ -478,27 +535,8 @@
                             <th class="pb-3 text-neon-cyan font-semibold text-right">Jumlah Halaman</th>
                         </tr>
                     </thead>
-                    <tbody class="text-gray-300">
-                        <tr class="border-b border-gray-700/30">
-                            <td class="py-3">Beranda</td>
-                            <td class="py-3 text-right font-mono">1</td>
-                        </tr>
-                        <tr class="border-b border-gray-700/30">
-                            <td class="py-3">Laporan</td>
-                            <td class="py-3 text-right font-mono">2–3</td>
-                        </tr>
-                        <tr class="border-b border-gray-700/30">
-                            <td class="py-3">Berita</td>
-                            <td class="py-3 text-right font-mono">2–3</td>
-                        </tr>
-                        <tr class="border-b border-gray-700/30">
-                            <td class="py-3">Lainnya</td>
-                            <td class="py-3 text-right font-mono">3–4</td>
-                        </tr>
-                        <tr class="border-t-2 border-neon-pink/50">
-                            <td class="py-3 font-bold text-neon-pink">Total</td>
-                            <td class="py-3 text-right font-bold text-neon-pink font-mono text-xl">8–11 halaman</td>
-                        </tr>
+                    <tbody id="module-breakdown-table" class="text-gray-300">
+                        <!-- Will be populated dynamically -->
                     </tbody>
                 </table>
             </div>
@@ -512,17 +550,20 @@
                         <span>Jumlah Halaman:</span>
                         <span id="total-pages" class="font-mono font-bold text-neon-cyan">10 halaman</span>
                     </p>
+                    <p class="flex justify-between">
+                        <span>Biaya Update Play Store:</span>
+                        <span class="font-mono font-bold text-neon-green">Rp 250.000</span>
+                    </p>
                     <div class="border-t border-neon-pink/30 my-3"></div>
                     <p class="flex justify-between text-xl">
                         <span class="font-bold">Total Estimasi:</span>
-                        <span id="total-price" class="font-mono font-bold text-neon-pink text-2xl">Rp 700.000</span>
+                        <span id="total-price" class="font-mono font-bold text-neon-pink text-2xl">Rp 950.000</span>
                     </p>
                 </div>
 
                 <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                     <h4 class="font-semibold text-yellow-300 mb-2">⚠️ Belum Termasuk:</h4>
                     <ul class="text-sm text-gray-300 space-y-1">
-                        <li>• Upload Play Store</li>
                         <li>• Testing & QA</li>
                         <li>• Revisi UI/UX</li>
                         <li>• Integrasi API / CMS</li>
@@ -619,8 +660,7 @@
                                 "Redirect ke browser untuk unduh"
                             ]
                         }
-                    ],
-                    "total_pages": "2"
+                    ]
                 },
                 {
                     "module_name": "Berita",
@@ -749,6 +789,95 @@
             }).format(amount);
         }
 
+        // Fungsi untuk menghitung metadata otomatis dari data pages
+        function calculateMetadata() {
+            const metadata = {
+                total_modules: appStructure.modules.length,
+                total_pages: 0,
+                page_breakdown: {}
+            };
+
+            appStructure.modules.forEach(module => {
+                let modulePageCount = 0;
+
+                // Hitung module_price sebagai 1 halaman jika > 0
+                if (module.module_price > 0) {
+                    modulePageCount++;
+                }
+
+                if (module.pages) {
+                    // Hanya hitung pages dengan price > 0
+                    const paidPages = module.pages.filter(p => p.price > 0).length;
+                    modulePageCount += paidPages;
+                } else if (module.sub_modules) {
+                    module.sub_modules.forEach(subModule => {
+                        const paidPages = subModule.pages.filter(p => p.price > 0).length;
+                        modulePageCount += paidPages;
+                    });
+                }
+
+                metadata.total_pages += modulePageCount;
+
+                // Page breakdown per module (angka pasti)
+                metadata.page_breakdown[module.module_name] = modulePageCount;
+            });
+
+            metadata.conservative_estimate = metadata.total_pages;
+            metadata.realistic_total = `${metadata.total_pages} halaman`;
+            metadata.total_pages_range = metadata.total_pages.toString();
+
+            return metadata;
+        }
+
+        // Update metadata otomatis
+        function updateMetadata() {
+            const meta = calculateMetadata();
+
+            // Update project info
+            appStructure.project_info.total_pages_range = meta.total_pages_range;
+
+            // Create summary
+            appStructure.summary = {
+                total_modules: meta.total_modules,
+                page_breakdown: meta.page_breakdown,
+                realistic_total: meta.realistic_total,
+                conservative_estimate: meta.conservative_estimate
+            };
+
+            // Update total_pages di setiap module (angka pasti)
+            appStructure.modules.forEach(module => {
+                let modulePageCount = 0;
+
+                // Hitung module_price sebagai 1 halaman jika > 0
+                if (module.module_price > 0) {
+                    modulePageCount++;
+                }
+
+                if (module.pages) {
+                    const paidPages = module.pages.filter(p => p.price > 0).length;
+                    modulePageCount += paidPages;
+                } else if (module.sub_modules) {
+                    module.sub_modules.forEach(subModule => {
+                        const paidPages = subModule.pages.filter(p => p.price > 0).length;
+                        modulePageCount += paidPages;
+                        subModule.sub_total = paidPages;
+                    });
+                }
+
+                module.total_pages = modulePageCount;
+            });
+
+            // Update notes
+            appStructure.notes = {
+                total_realistic_pages: meta.realistic_total,
+                baseline_calculation: "Otomatis berdasarkan sum harga modul + halaman",
+                page_definition: "Halaman dengan price > 0 = dihitung, price = 0 = tidak dihitung",
+                auto_calculated: true,
+                last_updated: new Date().toISOString()
+            };
+        }
+
+
         // Fungsi untuk menghitung total harga otomatis (termasuk module price)
         function calculateTotalPrice() {
             let total = 0;
@@ -758,18 +887,28 @@
                 // Tambahkan harga module (jika ada)
                 total += module.module_price || 0;
 
+                // Jika ada module_price, hitung sebagai 1 halaman
+                if (module.module_price > 0) {
+                    pageCount++;
+                }
+
                 if (module.pages) {
                     // Untuk module dengan pages langsung
+                    // Hanya hitung page yang memiliki price > 0 (halaman berbayar)
                     module.pages.forEach(page => {
                         total += page.price || 0;
-                        pageCount++;
+                        if (page.price > 0) {
+                            pageCount++;
+                        }
                     });
                 } else if (module.sub_modules) {
                     // Untuk module dengan sub_modules
                     module.sub_modules.forEach(subModule => {
                         subModule.pages.forEach(page => {
                             total += page.price || 0;
-                            pageCount++;
+                            if (page.price > 0) {
+                                pageCount++;
+                            }
                         });
                     });
                 }
@@ -891,11 +1030,260 @@
 
         // Initialize on load
         window.addEventListener('load', () => {
+            updateMetadata(); // Hitung semua metadata otomatis dulu
             displayJSON();
             updatePricingDisplay();
             renderModulePricesFromJSON();
             renderPricesFromJSON();
             updateStatisticsCards();
+            renderModuleBreakdownTable();
+            updateModuleTotalBadges();
+        });
+
+        // Fungsi untuk render tabel breakdown otomatis
+        function renderModuleBreakdownTable() {
+            const tbody = document.getElementById('module-breakdown-table');
+            if (!tbody) return;
+
+            const meta = calculateMetadata();
+            let html = '';
+
+            // Render setiap module
+            appStructure.modules.forEach(module => {
+                html += `
+                    <tr class="border-b border-gray-700/30">
+                        <td class="py-3">${module.module_name}</td>
+                        <td class="py-3 text-right font-mono">${module.total_pages}</td>
+                    </tr>
+                `;
+            });
+
+            // Render total
+            html += `
+                <tr class="border-t-2 border-neon-pink/50">
+                    <td class="py-3 font-bold text-neon-pink">Total</td>
+                    <td class="py-3 text-right font-bold text-neon-pink font-mono text-xl">${meta.total_pages_range}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+
+        // Fungsi untuk menghitung total harga otomatis (termasuk module price)
+        function calculateTotalPrice() {
+            let total = 0;
+            let pageCount = 0;
+
+            appStructure.modules.forEach(module => {
+                // Tambahkan harga module (jika ada)
+                total += module.module_price || 0;
+
+                // Jika ada module_price, hitung sebagai 1 halaman
+                if (module.module_price > 0) {
+                    pageCount++;
+                }
+
+                if (module.pages) {
+                    // Untuk module dengan pages langsung
+                    // Hanya hitung page yang memiliki price > 0 (halaman berbayar)
+                    module.pages.forEach(page => {
+                        total += page.price || 0;
+                        if (page.price > 0) {
+                            pageCount++;
+                        }
+                    });
+                } else if (module.sub_modules) {
+                    // Untuk module dengan sub_modules
+                    module.sub_modules.forEach(subModule => {
+                        subModule.pages.forEach(page => {
+                            total += page.price || 0;
+                            if (page.price > 0) {
+                                pageCount++;
+                            }
+                        });
+                    });
+                }
+            });
+
+            return { total, pageCount };
+        }
+
+        // Fungsi untuk update pricing display
+        function updatePricingDisplay() {
+            const { total, pageCount } = calculateTotalPrice();
+
+            // Tambah biaya Play Store (fixed cost)
+            const playStoreCost = 250000;
+            const finalTotal = total + playStoreCost;
+
+            // Update jumlah halaman
+            const pageCountElement = document.getElementById('total-pages');
+            if (pageCountElement) {
+                pageCountElement.textContent = `${pageCount} halaman`;
+            }
+
+            // Update total estimasi
+            const totalPriceElement = document.getElementById('total-price');
+            if (totalPriceElement) {
+                totalPriceElement.textContent = formatRupiah(finalTotal);
+            }
+        }
+
+        // Display JSON with syntax highlighting
+        function displayJSON() {
+            const jsonDisplay = document.getElementById('json-display');
+            const jsonString = JSON.stringify(appStructure, null, 2);
+            jsonDisplay.textContent = jsonString;
+        }
+
+        // Show JSON section
+        function showJSON() {
+            document.getElementById('json-section').style.display = 'block';
+            document.getElementById('json-section').scrollIntoView({ behavior: 'smooth' });
+            displayJSON();
+        }
+
+        // Show Breakdown section
+        function showBreakdown() {
+            document.getElementById('breakdown-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        // Fungsi untuk render harga modul dari JSON ke UI
+        function renderModulePricesFromJSON() {
+            appStructure.modules.forEach(module => {
+                const moduleElements = document.querySelectorAll(`[data-module="${module.module_id}"].module-price-display`);
+                moduleElements.forEach(el => {
+                    el.textContent = formatRupiah(module.module_price || 0);
+                });
+            });
+        }
+
+        // Fungsi untuk render harga dari JSON ke UI
+        function renderPricesFromJSON() {
+            let moduleIndex = 0;
+            appStructure.modules.forEach(module => {
+                if (module.pages) {
+                    // Render untuk module dengan pages langsung
+                    module.pages.forEach((page, pageIndex) => {
+                        const priceElements = document.querySelectorAll(`[data-module="${module.module_id}"] [data-page-index="${pageIndex}"] .price-display`);
+                        priceElements.forEach(el => {
+                            el.textContent = formatRupiah(page.price);
+                        });
+                    });
+                } else if (module.sub_modules) {
+                    // Render untuk module dengan sub_modules
+                    module.sub_modules.forEach((subModule, subIndex) => {
+                        subModule.pages.forEach((page, pageIndex) => {
+                            const priceElements = document.querySelectorAll(`[data-module="${module.module_id}"] [data-sub-index="${subIndex}"] [data-page-index="${pageIndex}"] .price-display`);
+                            priceElements.forEach(el => {
+                                el.textContent = formatRupiah(page.price);
+                            });
+                        });
+                    });
+                }
+                moduleIndex++;
+            });
+        }
+
+        // Copy JSON to clipboard
+        function copyJSON() {
+            const jsonString = JSON.stringify(appStructure, null, 2);
+            navigator.clipboard.writeText(jsonString).then(() => {
+                alert('✅ JSON berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Fungsi untuk render tabel breakdown otomatis
+        function renderModuleBreakdownTable() {
+            const tbody = document.getElementById('module-breakdown-table');
+            if (!tbody) return;
+
+            const meta = calculateMetadata();
+            let html = '';
+
+            // Render setiap module
+            appStructure.modules.forEach(module => {
+                html += `
+                    <tr class="border-b border-gray-700/30">
+                        <td class="py-3">${module.module_name}</td>
+                        <td class="py-3 text-right font-mono">${module.total_pages}</td>
+                    </tr>
+                `;
+            });
+
+            // Render total
+            html += `
+                <tr class="border-t-2 border-neon-pink/50">
+                    <td class="py-3 font-bold text-neon-pink">Total</td>
+                    <td class="py-3 text-right font-bold text-neon-pink font-mono text-xl">${meta.total_pages}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+        // Fungsi untuk update badge total di setiap module
+        function updateModuleTotalBadges() {
+            appStructure.modules.forEach(module => {
+                const badge = document.querySelector(`[data-module-total="${module.module_id}"]`);
+                if (badge) {
+                    const totalText = typeof module.total_pages === 'number'
+                        ? `${module.total_pages} halaman`
+                        : `${module.total_pages} halaman`;
+                    badge.textContent = `Total: ${totalText}`;
+                }
+            });
+        }
+
+        // Fungsi untuk update statistics cards di header
+        function updateStatisticsCards() {
+            appStructure.modules.forEach(module => {
+                const statCard = document.querySelector(`[data-stat-module="${module.module_id}"]`);
+                if (statCard) {
+                    // Update jumlah halaman
+                    const pageCountEl = statCard.querySelector('.stat-page-count');
+                    if (pageCountEl) {
+                        pageCountEl.textContent = module.total_pages;
+                    }
+
+                    // Update nama modul (optional, jika perlu)
+                    const moduleNameEl = statCard.querySelector('.stat-module-name');
+                    if (moduleNameEl) {
+                        moduleNameEl.textContent = module.module_name;
+                    }
+
+                    // Update deskripsi berdasarkan page types (optional)
+                    const descEl = statCard.querySelector('.stat-description');
+                    if (descEl && module.pages) {
+                        const types = [...new Set(module.pages.map(p => p.page_type))];
+                        const typeNames = {
+                            'main': 'Main',
+                            'list': 'List',
+                            'detail': 'Detail',
+                            'viewer': 'Viewer',
+                            'redirect': 'Redirect'
+                        };
+                        const desc = types.map(t => typeNames[t] || t).join(' + ');
+                        descEl.textContent = desc;
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateMetadata(); // Hitung semua metadata otomatis dulu
+            displayJSON();
+            updatePricingDisplay();
+            renderModulePricesFromJSON();
+            renderPricesFromJSON();
+            updateStatisticsCards();
+            renderModuleBreakdownTable();
+            updateModuleTotalBadges();
         });
     </script>
 
