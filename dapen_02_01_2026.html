@@ -394,10 +394,11 @@
                                 class="module-price-display text-neon-green font-mono text-lg font-bold">Rp 0</span>
                         </div>
                         <div class="space-y-3">
-                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-500">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-500" data-sub-index="0">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">1. Download Form</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                    <span
+                                        class="submodule-price-display text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
                                         140.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
@@ -408,10 +409,11 @@
                                     class="inline-block mt-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">2
                                     halaman</span>
                             </div>
-                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-400">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-400" data-sub-index="1">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">2. Kuis</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                    <span
+                                        class="submodule-price-display text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
                                         70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
@@ -421,10 +423,11 @@
                                     class="inline-block mt-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">1
                                     halaman ringan</span>
                             </div>
-                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-300">
+                            <div class="bg-black/30 rounded-lg p-4 border-l-4 border-green-300" data-sub-index="2">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-1">
                                     <h4 class="font-semibold text-green-300">3. Survey</h4>
-                                    <span class="text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
+                                    <span
+                                        class="submodule-price-display text-neon-cyan font-mono text-sm font-bold whitespace-nowrap">Rp
                                         70.000</span>
                                 </div>
                                 <ul class="text-sm text-gray-400 ml-4 space-y-1">
@@ -1209,6 +1212,18 @@
                 } else if (module.sub_modules) {
                     // Render untuk module dengan sub_modules
                     module.sub_modules.forEach((subModule, subIndex) => {
+                        // Hitung total harga submodule dari page-page didalamnya
+                        let subTotal = 0;
+                        if (subModule.pages) {
+                            subModule.pages.forEach(p => subTotal += (p.price || 0));
+                        }
+
+                        // Update tampilan harga submodule
+                        const subPriceEl = document.querySelector(`[data-module="${module.module_id}"] [data-sub-index="${subIndex}"] .submodule-price-display`);
+                        if (subPriceEl) {
+                            subPriceEl.textContent = formatRupiah(subTotal);
+                        }
+
                         subModule.pages.forEach((page, pageIndex) => {
                             const priceElements = document.querySelectorAll(`[data-module="${module.module_id}"] [data-sub-index="${subIndex}"] [data-page-index="${pageIndex}"] .price-display`);
                             priceElements.forEach(el => {
