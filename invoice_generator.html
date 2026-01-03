@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -34,6 +36,8 @@
 
             body {
                 background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .print-area {
@@ -52,10 +56,21 @@
                 <h1 class="text-3xl font-bold text-blue-400">Invoice Generator</h1>
                 <p class="text-gray-400">Zalepik Software Developer</p>
             </div>
-            <button onclick="showForm()"
-                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition">
-                + Buat Invoice Baru
-            </button>
+            <div class="flex gap-3">
+                <button onclick="exportData()"
+                    class="px-4 py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 rounded-lg font-semibold transition flex items-center gap-2 text-sm">
+                    ⬇ Export DB
+                </button>
+                <button onclick="document.getElementById('importFile').click()"
+                    class="px-4 py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 rounded-lg font-semibold transition flex items-center gap-2 text-sm">
+                    ⬆ Import DB
+                </button>
+                <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(this)">
+                <button onclick="showForm()"
+                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition">
+                    + Buat Invoice Baru
+                </button>
+            </div>
         </div>
 
         <!-- Invoice List -->
@@ -67,11 +82,16 @@
         <div id="formModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 no-print">
             <div class="bg-gray-800 rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Buat Invoice Baru</h2>
+                    <div class="flex items-center gap-4">
+                        <h2 id="formTitle" class="text-2xl font-bold">Buat Invoice Baru</h2>
+                        <span id="autoSaveStatus" class="text-xs text-gray-500 italic hidden">Mengetik...</span>
+                    </div>
                     <button onclick="hideForm()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
                 </div>
 
                 <form id="invoiceForm" class="space-y-4">
+                    <input type="hidden" id="invoiceId">
+                    <input type="hidden" id="invoiceCreatedAt">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Nomor Invoice</label>
@@ -109,13 +129,17 @@
                     </div>
 
                     <div class="flex gap-4 pt-4">
+                        <button type="button" onclick="manualSaveDraft()"
+                            class="px-6 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-semibold">
+                            Simpan Draft
+                        </button>
                         <button type="submit"
                             class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold">
                             Simpan Invoice
                         </button>
                         <button type="button" onclick="hideForm()"
-                            class="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg">
-                            Batal
+                            class="px-6 py-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 rounded-lg">
+                            Tutup
                         </button>
                     </div>
                 </form>
@@ -123,8 +147,7 @@
         </div>
 
         <!-- Invoice Preview/Print Area -->
-        <div id="invoicePreview"
-            class="hidden print-area bg-white text-gray-900 rounded-xl shadow-2xl p-12 max-w-4xl mx-auto">
+        <div id="invoicePreview" class="hidden print-area bg-white text-gray-900 shadow-2xl max-w-8xl mx-auto">
             <!-- Invoice content will be inserted here -->
         </div>
     </div>
@@ -132,6 +155,7 @@
     <script>
         // IndexedDB Setup
         let db;
+        let currentInvoice = null;
         const DB_NAME = 'InvoiceDB';
         const STORE_NAME = 'invoices';
 
@@ -224,10 +248,13 @@
                     <p class="text-gray-300 mb-1"><strong>Kepada:</strong> ${inv.clientName}</p>
                     <p class="text-2xl font-bold text-blue-400 mt-4">${formatRupiah(inv.total)}</p>
                     <div class="flex gap-2 mt-4">
-                        <button onclick="viewInvoice(${inv.id})" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm">
+                        <button onclick="viewInvoice(${inv.id})" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold">
                             Lihat
                         </button>
-                        <button onclick="deleteInv(${inv.id})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm">
+                        <button onclick="editInvoice(${inv.id})" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-sm font-semibold">
+                            Edit
+                        </button>
+                        <button onclick="deleteInv(${inv.id})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold">
                             Hapus
                         </button>
                     </div>
@@ -236,11 +263,20 @@
         }
 
         // Show Form
+        const DRAFT_KEY = 'invoice_form_draft';
+
         function showForm() {
             document.getElementById('formModal').classList.remove('hidden');
             document.getElementById('formModal').classList.add('flex');
-            document.getElementById('invoiceDate').valueAsDate = new Date();
-            addItem(); // Add first item automatically
+
+            // Check for draft
+            const draftStr = localStorage.getItem(DRAFT_KEY);
+            if (draftStr && confirm('Ditemukan draft invoice yang belum disimpan. Lanjutkan draft terakhir?')) {
+                loadDraft(JSON.parse(draftStr));
+            } else {
+                document.getElementById('invoiceDate').valueAsDate = new Date();
+                addItem(); // Add first item automatically
+            }
         }
 
         // Hide Form
@@ -248,20 +284,24 @@
             document.getElementById('formModal').classList.add('hidden');
             document.getElementById('formModal').classList.remove('flex');
             document.getElementById('invoiceForm').reset();
+            document.getElementById('invoiceId').value = ''; // Reset ID
+            document.getElementById('invoiceCreatedAt').value = ''; // Reset CreatedAt
+            document.getElementById('formTitle').innerText = 'Buat Invoice Baru'; // Reset Title
             document.getElementById('itemsContainer').innerHTML = '';
+            document.getElementById('autoSaveStatus').classList.add('hidden');
         }
 
         // Add Item Input
         let itemCount = 0;
-        function addItem() {
+        function addItem(desc = '', amount = '') {
             itemCount++;
             const container = document.getElementById('itemsContainer');
             const div = document.createElement('div');
             div.className = 'flex gap-2';
             div.innerHTML = `
-                <input type="text" placeholder="Keterangan" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none item-description" required>
-                <input type="number" placeholder="Nominal" class="w-40 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none item-amount" required min="0">
-                <button type="button" onclick="this.parentElement.remove()" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg">&times;</button>
+                <input type="text" placeholder="Keterangan" value="${desc}" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none item-description" required>
+                <input type="number" placeholder="Nominal" value="${amount}" class="w-40 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none item-amount" required min="0">
+                <button type="button" onclick="this.parentElement.remove(); triggerAutoSave();" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg">&times;</button>
             `;
             container.appendChild(div);
         }
@@ -283,6 +323,9 @@
 
             const total = items.reduce((sum, item) => sum + item.amount, 0);
 
+            const id = document.getElementById('invoiceId').value;
+            const createdAt = document.getElementById('invoiceCreatedAt').value;
+
             const invoice = {
                 invoiceNumber: document.getElementById('invoiceNumber').value,
                 date: document.getElementById('invoiceDate').value,
@@ -290,10 +333,16 @@
                 clientEmail: document.getElementById('clientEmail').value,
                 items: items,
                 total: total,
-                createdAt: new Date().toISOString()
+                createdAt: id ? createdAt : new Date().toISOString(), // Preserve created date if editing
+                updatedAt: new Date().toISOString()
             };
 
+            if (id) {
+                invoice.id = parseInt(id);
+            }
+
             await saveInvoice(invoice);
+            localStorage.removeItem(DRAFT_KEY); // Clear draft after save
             hideForm();
             loadInvoices();
             alert('Invoice berhasil disimpan!');
@@ -307,6 +356,7 @@
 
             request.onsuccess = () => {
                 const invoice = request.result;
+                currentInvoice = invoice;
                 renderInvoice(invoice);
             };
         }
@@ -315,86 +365,136 @@
         function renderInvoice(invoice) {
             const preview = document.getElementById('invoicePreview');
             preview.innerHTML = `
-                <div class="flex justify-between items-start mb-8">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 10a1 1 0 112 0 1 1 0 01-2 0zm2 3a1 1 0 110-2 1 1 0 010 2z"/>
-                                </svg>
+                <div class="max-w-10xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden aspect-[210/297] flex flex-col">
+                    <!-- Header Section -->
+                    <div class="bg-[#FBFBFB] px-12 py-12 border-b border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <img src="https://zenzalepik.github.io/Zalepik_Images/logo-color-small.svg" class="w-12 h-12" alt="Zalepik Logo">
+                                <div>
+                                    <h2 class="text-xl font-bold text-[#0085FF] leading-none tracking-wide">ZALEPIK</h2>
+                                    <h2 class="text-xl font-bold text-[#0085FF] leading-none tracking-wide">SOFTWARE DEVELOPER</h2>
+                                    <p class="text-xs font-bold text-[#0085FF] tracking-[0.3em]">w w w . z a l e p i k . c o m</p>
+                                </div>
                             </div>
-                            <div>
-                                <h1 class="text-2xl font-bold text-gray-800">ZALEPIK</h1>
-                                <p class="text-sm text-gray-600">SOFTWARE DEVELOPER</p>
+                            
+                            <div class="flex gap-6 text-gray-500 text-sm pt-2">
+                                 <div class="text-right space-y-1">
+                                    <p>zalepik.dev@gmail.com</p>
+                                    <p>085720075826</p>
+                                 </div>
+                                 <div class="w-px bg-gray-300 h-12"></div>
+                                 <div class="text-left space-y-1">
+                                    <p class="whitespace-nowrap">Jl.Masjid Rt.01 Rw.08 Dsn. Sumberwinong</p>
+                                    <p>Ds. Banjardowo 61419 Jombang</p>
+                                 </div>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-600">Maluku Utara | Ternate Kota | Ternate Barat</p>
-                        <p class="text-sm text-gray-600">zalepikdev@mail.com</p>
-                        <p class="text-sm text-gray-600">082372087262</p>
                     </div>
-                    <div class="text-right">
-                        <h2 class="text-4xl font-bold text-gray-800 mb-2">Invoice</h2>
-                        <p class="text-sm text-gray-600"><strong>TANGGAL:</strong></p>
-                        <p class="text-sm text-gray-600">${new Date(invoice.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                        <p class="text-sm text-gray-600 mt-2"><strong>NOMOR:</strong></p>
-                        <p class="text-sm font-mono">${invoice.invoiceNumber}</p>
-                    </div>
-                </div>
 
-                <div class="mb-8">
-                    <p class="text-sm text-gray-600 mb-1"><strong>PENGIRIM:</strong></p>
-                    <p class="text-gray-800">Zalepik Software Developer</p>
-                    <p class="text-sm text-gray-600 mt-3"><strong>PENERIMA:</strong></p>
-                    <p class="text-gray-800">${invoice.clientName}</p>
-                    ${invoice.clientEmail ? `<p class="text-sm text-gray-600">${invoice.clientEmail}</p>` : ''}
-                </div>
+                    <!-- Body Section -->
+                    <div class="px-12 py-12 flex-1">
+                        <!-- Invoice Recipient & Details -->
+                        <div class="flex justify-between items-end mb-16">
+                            <div class="mb-2">
+                                <p class="font-bold text-gray-800 text-sm uppercase mb-2 tracking-wider">PENERIMA:</p>
+                                <p class="font-bold text-gray-700 text-xl">${invoice.clientName}</p>
+                                ${invoice.clientEmail ? `<p class="text-gray-500 mt-1">${invoice.clientEmail}</p>` : ''}
+                            </div>
+                            
+                            <div class="text-right">
+                                <h1 class="text-6xl font-bold text-[#1F2937] mb-8 tracking-tighter">Invoice</h1>
+                                <div class="flex justify-end gap-16">
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-xs uppercase mb-2 tracking-wider">NOMOR:</p>
+                                        <p class="text-gray-500 font-medium font-mono text-lg">${invoice.invoiceNumber}</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-xs uppercase mb-2 tracking-wider">TANGGAL:</p>
+                                        <p class="text-gray-500 font-medium text-lg">${new Date(invoice.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <table class="w-full mb-8">
-                    <thead>
-                        <tr class="border-b-2 border-gray-800">
-                            <th class="text-left py-3 text-sm font-semibold">No.</th>
-                            <th class="text-left py-3 text-sm font-semibold">Keterangan</th>
-                            <th class="text-right py-3 text-sm font-semibold">Nominal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${invoice.items.map((item, index) => `
-                            <tr class="border-b border-gray-200">
-                                <td class="py-3 text-sm">${index + 1}.</td>
-                                <td class="py-3 text-sm">${item.description}</td>
-                                <td class="py-3 text-sm text-right">${formatRupiah(item.amount)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        <!-- Items Table -->
+                        <table class="w-full mb-8">
+                            <thead>
+                                <tr class="border-b-2 border-gray-100">
+                                    <th class="text-left py-4 font-bold text-gray-800 w-16">No.</th>
+                                    <th class="text-left py-4 font-bold text-gray-800">Keterangan</th>
+                                    <th class="text-right py-4 font-bold text-gray-800">Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${invoice.items.map((item, index) => `
+                                    <tr class="border-b-2 border-gray-100">
+                                        <td class="py-4 text-gray-500 font-medium">${index + 1}.</td>
+                                        <td class="py-4 text-gray-700 font-medium">${item.description}</td>
+                                        <td class="py-4 text-gray-700 font-medium text-right">${formatRupiah(item.amount)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
 
-                <div class="flex justify-between items-start">
-                    <div class="text-sm text-gray-600">
-                        <p class="mb-1">Pembayaran hanya dapat dilakukan melalui:</p>
-                        <p class="font-semibold text-gray-800">BANK <span class="text-blue-600">BCA</span></p>
-                        <p class="font-mono text-lg font-bold text-gray-800">5003 4125 9379</p>
-                        <p class="text-xs text-gray-500 mt-1">Atas Nama: Zaenal Mutaqin</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="border-t-4 border-blue-600 pt-4">
-                            <p class="text-sm text-gray-600 mb-1">TOTAL</p>
-                            <p class="text-3xl font-bold text-blue-600">${formatRupiah(invoice.total)}</p>
+                        <!-- Total Section -->
+                        <div class="flex justify-end mb-4">
+                             <div class="text-right pt-6 border-t-[10px] border-black">
+                                <p class="text-sm font-bold text-black mb-2 uppercase tracking-wider">Total Tagihan</p>
+                                <p class="text-5xl font-bold text-[#0085FF] tracking-tight">${formatRupiah(invoice.total)}</p>
+                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-12 text-center no-print">
-                    <button onclick="printInvoice()" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold mr-2">
-                        🖨️ Print Invoice
-                    </button>
-                    <button onclick="closePreview()" class="px-8 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                        Tutup
-                    </button>
-                </div>
+                    <!-- Footer Section -->
+                    <div class="bg-[#FBFBFB] px-12 py-10 border-t border-gray-100">
+                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
+                            <!-- Bank Info -->
+                            <div class="flex-1">
+                                <p class="text-gray-400 text-sm mb-4">Pembayaran dapat dilakukan melalui transfer ke rekening:</p>
+                                <div class="flex items-center gap-6">
+                                    <img src="https://www.jago.com/images/brand/logo-jago.svg" class="h-10 w-auto" alt="Bank Jago">
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm uppercase">Bank Jago</p>
+                                        <p class="font-bold text-black text-xl tracking-wider font-mono">5003 4125 9379</p>
+                                    </div>
+                                    <div class="hidden sm:block w-px bg-gray-300 h-10 mx-2"></div>
+                                    <div class="hidden sm:block">
+                                        <p class="font-bold text-gray-400 text-sm">Atas Nama:</p>
+                                        <p class="font-bold text-gray-600 uppercase">Moh. Zainul Muttaqin</p>
+                                    </div>
+                                </div>
+                                <div class="sm:hidden mt-4">
+                                    <p class="font-bold text-gray-400 text-sm">Atas Nama:</p>
+                                    <p class="font-bold text-gray-600 uppercase">Moh. Zainul Muttaqin</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Contact Info -->
+                            <div class="text-left md:text-right">
+                                <p class="text-gray-400 text-xs sm:text-sm mb-2 leading-relaxed">Silahkan hubungi kami melalui WhatsApp<br>jika ada hal-hal yang perlu ditanyakan.</p>
+                                <a href="https://wa.me/6285720075826" target="_blank" class="inline-flex items-center gap-2 text-[#25D366] hover:text-green-600 font-medium transition">
+                                    https://wa.me/6285720075826 
+                                    <i class="ri-whatsapp-line text-xl"></i>
+                                </a>
+                            </div>
+                         </div>
+                         
+                         
+                    </div>
 
-                <div class="mt-8 pt-8 border-t text-center text-xs text-gray-500">
-                    <p>Invoice ini digenerate otomatis menggunakan sistem ZALEPIK</p>
-                    <p class="text-green-500 font-semibold mt-1">https://wa.link/9dqp7o https://wa.link/i3m3py/ro.com</p>
+                    <!-- Print Actions -->
+                    <div class="px-12 py-8 bg-[#FBFBFB] text-center no-print border-t border-gray-100">
+                        <button onclick="exportPDF()" class="px-10 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 font-bold shadow-lg shadow-red-500/20 transition transform hover:-translate-y-0.5 mr-4">
+                            📄 Export PDF
+                        </button>
+                        <button onclick="printInvoice()" class="px-10 py-3 bg-[#0085FF] text-white rounded-full hover:bg-blue-600 font-bold shadow-lg shadow-blue-500/20 transition transform hover:-translate-y-0.5 mr-4">
+                            🖨️ Print Invoice
+                        </button>
+                        <button onclick="closePreview()" class="px-10 py-3 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-gray-50 font-bold transition">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -405,6 +505,51 @@
         // Print Invoice
         function printInvoice() {
             window.print();
+        }
+
+        // Export PDF
+        function exportPDF() {
+            if (!currentInvoice) return;
+
+            const element = document.querySelector("#invoicePreview > div");
+            const originalClass = element.className;
+
+            // Optimize visuals for PDF (remove shadow/rounded only)
+            element.classList.remove('shadow-xl', 'rounded-xl');
+
+            // Calculate dimensions based on the element
+            // Use getBoundingClientRect for more accurate rendering dimensions including transforms if any
+            const rect = element.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+
+            const opt = {
+                margin: 0,
+                filename: `Invoice-${currentInvoice.invoiceNumber.replace(/[\/\\:]/g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'px', format: [width, height], orientation: width > height ? 'landscape' : 'portrait' }
+            };
+
+            // Show loading state
+            const btn = document.querySelector('button[onclick="exportPDF()"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Generating PDF...';
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore styles
+                element.className = originalClass;
+
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error(err);
+                alert('Gagal export PDF');
+                element.className = originalClass;
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
         }
 
         // Close Preview
@@ -421,8 +566,172 @@
             }
         }
 
+        // Edit Invoice
+        async function editInvoice(id) {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const objectStore = transaction.objectStore(STORE_NAME);
+            const request = objectStore.get(id);
+
+            request.onsuccess = () => {
+                const invoice = request.result;
+                if (!invoice) return;
+
+                // remove existing draft warning if any, because user intends to edit specific invoice
+                localStorage.removeItem(DRAFT_KEY);
+
+                document.getElementById('formTitle').innerText = 'Edit Invoice';
+                document.getElementById('invoiceId').value = invoice.id;
+                document.getElementById('invoiceCreatedAt').value = invoice.createdAt;
+
+                document.getElementById('invoiceNumber').value = invoice.invoiceNumber;
+                document.getElementById('invoiceDate').value = invoice.date;
+                document.getElementById('clientName').value = invoice.clientName;
+                document.getElementById('clientEmail').value = invoice.clientEmail;
+
+                const container = document.getElementById('itemsContainer');
+                container.innerHTML = '';
+
+                if (invoice.items && invoice.items.length > 0) {
+                    invoice.items.forEach(item => {
+                        addItem(item.description, item.amount);
+                    });
+                } else {
+                    addItem();
+                }
+
+                document.getElementById('formModal').classList.remove('hidden');
+                document.getElementById('formModal').classList.add('flex');
+            };
+        }
+
         // Initialize
         initDB();
+
+        // --- Export / Import & Auto Save Logic ---
+
+        // Export DB
+        async function exportData() {
+            try {
+                const invoices = await getAllInvoices();
+                const dataStr = JSON.stringify(invoices, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_invoice_zalepik_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error(error);
+                alert('Gagal export database.');
+            }
+        }
+
+        // Import DB
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const invoices = JSON.parse(e.target.result);
+                    if (!Array.isArray(invoices)) throw new Error('Format file tidak valid (Harus Array)');
+
+                    let successCount = 0;
+                    for (const inv of invoices) {
+                        delete inv.id; // Remove ID to allow auto-increment
+                        await saveInvoice(inv);
+                        successCount++;
+                    }
+                    loadInvoices();
+                    alert(`Berhasil mengembalikan ${successCount} invoice!`);
+                } catch (err) {
+                    alert('Gagal mengimport database: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        // Auto Save Logic
+        let autoSaveTimer;
+        const statusEl = document.getElementById('autoSaveStatus');
+        const form = document.getElementById('invoiceForm');
+
+        // Input Listener with Debounce
+        form.addEventListener('input', () => {
+            triggerAutoSave();
+        });
+
+        function triggerAutoSave() {
+            statusEl.classList.remove('hidden');
+            statusEl.textContent = 'Mengetik...';
+            statusEl.className = 'text-xs text-yellow-500 italic';
+
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                saveDraftToStorage();
+            }, 5000); // 5 seconds debounce
+        }
+
+        function saveDraftToStorage() {
+            const items = [];
+            const descriptions = document.querySelectorAll('.item-description');
+            const amounts = document.querySelectorAll('.item-amount');
+
+            for (let i = 0; i < descriptions.length; i++) {
+                items.push({
+                    description: descriptions[i].value,
+                    amount: amounts[i].value
+                });
+            }
+
+            const draft = {
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                date: document.getElementById('invoiceDate').value,
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                items: items,
+                updatedAt: new Date().toISOString()
+            };
+
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+
+            statusEl.textContent = 'Tersimpan Otomatis';
+            statusEl.className = 'text-xs text-green-500 italic';
+            // Hide status after 3 seconds
+            setTimeout(() => {
+                if (statusEl.textContent === 'Tersimpan Otomatis') {
+                    statusEl.classList.add('hidden');
+                }
+            }, 3000);
+        }
+
+        function manualSaveDraft() {
+            saveDraftToStorage();
+            alert('Draft berhasil disimpan aman!');
+        }
+
+        function loadDraft(draft) {
+            document.getElementById('invoiceNumber').value = draft.invoiceNumber || '';
+            document.getElementById('invoiceDate').value = draft.date || '';
+            document.getElementById('clientName').value = draft.clientName || '';
+            document.getElementById('clientEmail').value = draft.clientEmail || '';
+
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+
+            if (draft.items && draft.items.length > 0) {
+                draft.items.forEach(item => {
+                    addItem(item.description, item.amount);
+                });
+            } else {
+                addItem();
+            }
+        }
     </script>
 
 </body>
