@@ -453,7 +453,7 @@
                             <div class="flex-1">
                                 <p class="text-gray-400 text-sm mb-4">Pembayaran dapat dilakukan melalui transfer ke rekening:</p>
                                 <div class="flex items-center gap-6">
-                                    <img src="https://www.jago.com/images/brand/logo-jago.svg" class="h-10 w-auto" alt="Bank Jago">
+                                    <img src="logo-jago.svg" class="h-10 w-auto" alt="Bank Jago">
                                     <div>
                                         <p class="font-bold text-gray-800 text-sm uppercase">Bank Jago</p>
                                         <p class="font-bold text-black text-xl tracking-wider font-mono">5003 4125 9379</p>
@@ -479,8 +479,6 @@
                                 </a>
                             </div>
                          </div>
-                         
-                         
                     </div>
 
                     <!-- Print Actions -->
@@ -517,11 +515,15 @@
             // Optimize visuals for PDF (remove shadow/rounded only)
             element.classList.remove('shadow-xl', 'rounded-xl');
 
+            // Hide action buttons (no-print)
+            const noPrintEls = element.querySelectorAll('.no-print');
+            noPrintEls.forEach(el => el.style.display = 'none');
+
             // Calculate dimensions based on the element
             // Use getBoundingClientRect for more accurate rendering dimensions including transforms if any
             const rect = element.getBoundingClientRect();
             const width = rect.width;
-            const height = rect.height;
+            const height = rect.height; // Height will be shorter now without buttons
 
             const opt = {
                 margin: 0,
@@ -540,6 +542,7 @@
             html2pdf().set(opt).from(element).save().then(() => {
                 // Restore styles
                 element.className = originalClass;
+                noPrintEls.forEach(el => el.style.display = '');
 
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -547,6 +550,7 @@
                 console.error(err);
                 alert('Gagal export PDF');
                 element.className = originalClass;
+                noPrintEls.forEach(el => el.style.display = '');
                 btn.innerText = originalText;
                 btn.disabled = false;
             });
