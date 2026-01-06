@@ -214,13 +214,28 @@
 
                         <div id="paymentDetails" class="hidden space-y-4 bg-gray-700/50 p-4 rounded-lg">
                             <div>
-                                <label class="block text-sm font-medium mb-2">Jumlah Terbayar</label>
-                                <input type="number" id="amountPaid" min="0" value="0" oninput="calculateRemaining()"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium">Riwayat Cicilan</label>
+                                    <button type="button" onclick="addInstallment()"
+                                        class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs font-medium">
+                                        + Tambah Cicilan
+                                    </button>
+                                </div>
+                                <div id="installmentsContainer" class="space-y-2">
+                                    <!-- Installments will be added here -->
+                                </div>
                             </div>
                             <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                                <span class="text-sm text-gray-400">Sisa Pembayaran:</span>
-                                <span id="remainingAmount" class="text-lg font-bold text-yellow-400">Rp. 0</span>
+                                <div>
+                                    <span class="text-sm text-gray-400">Total Terbayar:</span>
+                                    <span id="totalPaidAmount" class="text-lg font-bold text-green-400 ml-2">Rp.
+                                        0</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-400">Sisa:</span>
+                                    <span id="remainingAmount" class="text-lg font-bold text-yellow-400 ml-2">Rp.
+                                        0</span>
+                                </div>
                             </div>
                             <div>
                                 <label class="flex items-center gap-2 cursor-pointer">
@@ -446,9 +461,10 @@
             const id = document.getElementById('invoiceId').value;
             const createdAt = document.getElementById('invoiceCreatedAt').value;
 
-            // Payment status
+            // Payment status - collect installments
             const hasPayment = document.getElementById('paymentPartial').checked;
-            const amountPaid = hasPayment ? parseInt(document.getElementById('amountPaid').value) || 0 : 0;
+            const installments = getInstallmentsData();
+            const amountPaid = installments.reduce((sum, inst) => sum + inst.amount, 0);
             const isComplete = document.getElementById('paymentComplete').checked;
 
             const invoice = {
@@ -458,6 +474,7 @@
                 clientEmail: document.getElementById('clientEmail').value,
                 items: items,
                 total: total,
+                installments: hasPayment ? installments : [],
                 amountPaid: amountPaid,
                 isComplete: isComplete,
                 createdAt: id ? createdAt : new Date().toISOString(), // Preserve created date if editing
@@ -570,10 +587,20 @@
                                 <p class="text-sm font-bold text-black mb-2 uppercase tracking-wider">Total Tagihan</p>
                                 <p class="text-5xl font-bold text-[#0085FF] tracking-tight">${formatRupiah(invoice.total)}</p>
                                 
-                                ${invoice.amountPaid > 0 ? `
+                                ${(invoice.installments && invoice.installments.length > 0) || invoice.amountPaid > 0 ? `
                                 <div class="mt-6 pt-4 border-t border-gray-200 space-y-2">
+                                    ${invoice.installments && invoice.installments.length > 0 ? `
+                                    <p class="text-xs text-gray-400 uppercase font-bold mb-2">Riwayat Pembayaran:</p>
+                                    ${invoice.installments.map((inst, idx) => `
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-500">Cicilan ${idx + 1}:</span>
+                                        <span class="font-medium text-gray-700">${formatRupiah(inst.amount)}</span>
+                                    </div>
+                                    `).join('')}
+                                    <div class="border-t border-gray-200 pt-2 mt-2"></div>
+                                    ` : ''}
                                     <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-500">Terbayar:</span>
+                                        <span class="text-sm text-gray-500">Total Terbayar:</span>
                                         <span class="text-lg font-bold text-green-600">${formatRupiah(invoice.amountPaid)}</span>
                                     </div>
                                     <div class="flex justify-between items-center">
@@ -740,17 +767,31 @@
                 document.getElementById('clientEmail').value = invoice.clientEmail;
 
                 // Load payment status
-                if (invoice.amountPaid > 0) {
+                const hasInstallments = invoice.installments && invoice.installments.length > 0;
+                if (hasInstallments || invoice.amountPaid > 0) {
                     document.getElementById('paymentPartial').checked = true;
                     document.getElementById('paymentDetails').classList.remove('hidden');
-                    document.getElementById('amountPaid').value = invoice.amountPaid;
                     document.getElementById('paymentComplete').checked = invoice.isComplete || false;
+
+                    // Load installments
+                    const installContainer = document.getElementById('installmentsContainer');
+                    installContainer.innerHTML = '';
+
+                    if (hasInstallments) {
+                        invoice.installments.forEach(inst => {
+                            addInstallment(inst.amount);
+                        });
+                    } else if (invoice.amountPaid > 0) {
+                        // Legacy support: convert single amountPaid to one installment
+                        addInstallment(invoice.amountPaid);
+                    }
+
                     // Calculate remaining after items are loaded
                     setTimeout(() => calculateRemaining(), 100);
                 } else {
                     document.getElementById('paymentPartial').checked = false;
                     document.getElementById('paymentDetails').classList.add('hidden');
-                    document.getElementById('amountPaid').value = 0;
+                    document.getElementById('installmentsContainer').innerHTML = '';
                     document.getElementById('paymentComplete').checked = false;
                 }
 
@@ -861,7 +902,7 @@
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
                 items: items,
-                amountPaid: parseInt(document.getElementById('amountPaid').value) || 0,
+                installments: getInstallmentsData(),
                 isComplete: document.getElementById('paymentComplete').checked,
                 hasPayment: document.getElementById('paymentPartial').checked,
                 updatedAt: new Date().toISOString()
@@ -894,8 +935,18 @@
             if (draft.hasPayment) {
                 document.getElementById('paymentPartial').checked = true;
                 document.getElementById('paymentDetails').classList.remove('hidden');
-                document.getElementById('amountPaid').value = draft.amountPaid || 0;
                 document.getElementById('paymentComplete').checked = draft.isComplete || false;
+
+                // Load installments from draft
+                const installContainer = document.getElementById('installmentsContainer');
+                installContainer.innerHTML = '';
+
+                if (draft.installments && draft.installments.length > 0) {
+                    draft.installments.forEach(inst => {
+                        addInstallment(inst.amount);
+                    });
+                }
+                setTimeout(() => calculateRemaining(), 100);
             }
 
             const container = document.getElementById('itemsContainer');
@@ -917,10 +968,14 @@
 
             if (checkbox.checked) {
                 details.classList.remove('hidden');
+                // Add first installment if none exists
+                if (document.querySelectorAll('.installment-amount').length === 0) {
+                    addInstallment();
+                }
                 calculateRemaining();
             } else {
                 details.classList.add('hidden');
-                document.getElementById('amountPaid').value = 0;
+                document.getElementById('installmentsContainer').innerHTML = '';
                 document.getElementById('paymentComplete').checked = false;
             }
             triggerAutoSave();
@@ -929,9 +984,14 @@
         function togglePaymentComplete() {
             const completeCheckbox = document.getElementById('paymentComplete');
             if (completeCheckbox.checked) {
-                // Auto-fill amount paid with total
+                // Auto-fill remaining amount as new installment
                 const total = calculateTotal();
-                document.getElementById('amountPaid').value = total;
+                const currentPaid = calculateTotalPaid();
+                const remaining = total - currentPaid;
+
+                if (remaining > 0) {
+                    addInstallment(remaining);
+                }
                 calculateRemaining();
             }
             triggerAutoSave();
@@ -948,18 +1008,83 @@
 
         function calculateRemaining() {
             const total = calculateTotal();
-            const paid = parseInt(document.getElementById('amountPaid').value) || 0;
+            const paid = calculateTotalPaid();
             const remaining = total - paid;
+
+            // Update total paid display
+            const totalPaidEl = document.getElementById('totalPaidAmount');
+            if (totalPaidEl) {
+                totalPaidEl.textContent = formatRupiah(paid);
+            }
 
             const remainingEl = document.getElementById('remainingAmount');
             remainingEl.textContent = formatRupiah(Math.max(0, remaining));
 
             // Update color based on remaining amount
             if (remaining <= 0) {
-                remainingEl.className = 'text-lg font-bold text-green-400';
+                remainingEl.className = 'text-lg font-bold text-green-400 ml-2';
             } else {
-                remainingEl.className = 'text-lg font-bold text-yellow-400';
+                remainingEl.className = 'text-lg font-bold text-yellow-400 ml-2';
             }
+        }
+
+        // Installment Functions
+        let installmentCount = 0;
+
+        function addInstallment(amount = '') {
+            installmentCount++;
+            const container = document.getElementById('installmentsContainer');
+            const index = container.children.length + 1;
+
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            div.innerHTML = `
+                <span class="text-sm text-gray-400 w-20">Cicilan ${index}:</span>
+                <input type="number" placeholder="Nominal" value="${amount}" min="0"
+                    class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm installment-amount"
+                    oninput="calculateRemaining(); triggerAutoSave();">
+                <button type="button" onclick="removeInstallment(this)" 
+                    class="px-2 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm">&times;</button>
+            `;
+            container.appendChild(div);
+            calculateRemaining();
+            triggerAutoSave();
+        }
+
+        function removeInstallment(btn) {
+            btn.parentElement.remove();
+            // Renumber installments
+            const container = document.getElementById('installmentsContainer');
+            const labels = container.querySelectorAll('span');
+            labels.forEach((label, idx) => {
+                label.textContent = `Cicilan ${idx + 1}:`;
+            });
+            calculateRemaining();
+            triggerAutoSave();
+        }
+
+        function calculateTotalPaid() {
+            const amounts = document.querySelectorAll('.installment-amount');
+            let total = 0;
+            amounts.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            return total;
+        }
+
+        function getInstallmentsData() {
+            const installments = [];
+            const amounts = document.querySelectorAll('.installment-amount');
+            amounts.forEach((input, index) => {
+                const amount = parseInt(input.value) || 0;
+                if (amount > 0) {
+                    installments.push({
+                        number: index + 1,
+                        amount: amount
+                    });
+                }
+            });
+            return installments;
         }
 
         function getPaymentStatusLabel(invoice) {
